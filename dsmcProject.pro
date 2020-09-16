@@ -23,12 +23,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    /parcels/derived/dsmcParcel/dsmcParcel.C \
-    /clouds/Templates/DSMCCloud/DSMCCloudName.C \
-    /parcels/derived/dsmcParcel/defineDSMCParcel.C \
-    /parcels/derived/dsmcParcel/makeDSMCParcelBinaryCollisionModels.C \
-    /parcels/derived/dsmcParcel/makeDSMCParcelWallInteractionModels.C \
-    /parcels/derived/dsmcParcel/makeDSMCParcelInflowBoundaryModels.C
+    parcels/derived/dsmcParcel/dsmcParcel.C \
+    clouds/Templates/DSMCCloud/DSMCCloudName.C \
+    parcels/derived/dsmcParcel/defineDSMCParcel.C \
+    parcels/derived/dsmcParcel/makeDSMCParcelBinaryCollisionModels.C \
+    parcels/derived/dsmcParcel/makeDSMCParcelWallInteractionModels.C \
+    parcels/derived/dsmcParcel/makeDSMCParcelInflowBoundaryModels.C
 
 HEADERS += \
     inputstream.h
