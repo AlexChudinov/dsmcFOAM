@@ -3,34 +3,29 @@
 
 #include "InflowBoundaryModel.H"
 #include "polyMesh.H"
+#include "constants.H"
 
 namespace Foam {
 
 template<class CloudType>
 class InputStream
         :
-            public InflowBoundaryModel<CloudType>
+        public InflowBoundaryModel<CloudType>
 {
-public:
+
+    scalar sqrtPi = sqrt(pi);
+
+    //Name of dict with molecular abundances
+    const word componentAbundancesDictName_ = "componentAbundances";
     // Private Data
 
-        //- The indices of patches to introduce molecules across
-        labelList patches_;
+    //- The indices of patches to introduce molecules across
+    labelList patches_;
 
-        //- The molecule types to be introduced
-        List<label> moleculeTypeIds_;
+    //Names of the molecules
+    wordList componentNames_;
 
-        //- The number density of the species in the inflow
-        Field<scalar> numberDensities_;
-
-        //- A List of Lists of Fields specifying carry-over of mass flux from
-        // one timestep to the next
-        // + Outer List - one inner List for each patch
-        // + Inner List - one Field for every species to be introduced
-        // + Each field entry corresponding to a face to be injected across
-        //   with a particular species
-        List<List<Field<scalar>>> particleFluxAccumulators_;
-
+    scalarList componentAbundances_;
 
 public:
 
@@ -40,12 +35,10 @@ public:
 
     // Constructors
 
-        //- Construct from dictionary
-        InputStream
-        (
+    //- Construct from dictionary
+    InputStream(
             const dictionary& dict,
-            CloudType& cloud
-        );
+            CloudType& cloud);
 
 
     //- Destructor
@@ -54,19 +47,67 @@ public:
 
     // Member Functions
 
-        // Mapping
+    // Mapping
 
-            //- Remap the particles to the correct cells following mesh change
-            virtual void autoMap(const mapPolyMesh&);
+    //- Remap the particles to the correct cells following mesh change
+    virtual void autoMap(const mapPolyMesh&);
 
-        //- Introduce particles
-        virtual void inflow();
+    //- Introduce particles
+    virtual void inflow();
 };
+
+template<class CloudType>
+InputStream<CloudType>::InputStream(const dictionary &dict, CloudType &cloud)
+    :
+      InflowBoundaryModel<CloudType>(dict, cloud, typeName)
+{
+    DynamicList<label> patches;
+    forAll(cloud.mesh().boundaryMesh(), p){
+        const polyPatch * patch = & cloud.mesh().boundaryMesh()[p];
+        if(isType<polyPatch>(patch)){
+            patches.append(p);
+        }
+    }
+    patches_.transfer(patches);
+
+    const dictionary& componentAbundances = this->coeffDict().subDict(
+                componentAbundancesDictName_);
+
+    componentNames_ = componentAbundances.toc();
+    componentAbundances_.setSize(componentNames_.size());
+    forAll(componentNames_, n)
+    {
+        componentAbundances_[n] = componentAbundances.lookup<scalar>(componentNames_[n]);
+        Info << componentNames_[n] << " : " << componentAbundances_[n] << "\n";
+    }
+}
+
+template<class CloudType>
+InputStream<CloudType>::~InputStream()
+{
+
+}
 
 template<class CloudType>
 void InputStream<CloudType>::inflow()
 {
-    Info << "Just dummy yet \n";
+    CloudType& cloud = this->owner();
+
+    const polyMesh & mesh = cloud.mesh();
+
+    const scalar deltaT = mesh.time().deltaTValue();
+
+    Random & rndGen = cloud.rndGen();
+
+    label particlesInserted = 0;
+
+    const volScalarField::Boundary& boundaryT = cloud.boundaryT().boundaryField();
+
+    const volVectorField::Boundary& boundaryU = cloud.boundaryU().boundaryField();
+
+    const volScalarField::Boundary& rhoN = cloud.rhoN().boundaryField();
+
+
 }
 
 template<class CloudType>

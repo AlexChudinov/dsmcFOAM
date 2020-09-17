@@ -40,6 +40,7 @@ namespace Foam
     // Add instances of inflow boundary model to the table
     makeInflowBoundaryModelType(FreeStream, CloudType);
     makeInflowBoundaryModelType(NoInflow, CloudType);
+    makeInflowBoundaryModelType(InputStream, CloudType);
 }
 
 
